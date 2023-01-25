@@ -50,7 +50,19 @@ public class ChessEngine {
         // gets team of id
         return getBit(id, 3) == 1;
     }
-
+    private int[] getKing(boolean team){
+        return getKing(team, this.board);
+    }
+    public int[] getKing(boolean team, int[][] inputBoard){
+        for (int y = 0; y < inputBoard.length; y++) {
+            for (int x = 0; x < inputBoard[0].length; x++) {
+                if(getPiece(inputBoard[x][y]) == Piece.KING && getTeam(inputBoard[x][y]) == team){
+                    return new int[]{x, y};
+                }
+            }
+        }
+        return null;
+    }
     private int setWasMoved(int id) {
         return setBit(id, 4, 1);
     }
@@ -111,22 +123,22 @@ public class ChessEngine {
     }
 
     // private Piece Move Validation Methods
-    private boolean legalMoveKing(int oldX, int oldY, int x, int y) {
+    private boolean legalMoveKing(int oldX, int oldY, int x, int y, int[][] inputBoard) {
         boolean legalMove = Math.abs(oldX - x) <= 1 && Math.abs(oldY - y) <= 1;
-        boolean castleKingside = (getTeam(getBoardOn(oldX, oldY)) && getBoardOn(5, 0) == 0 &&
-                getBoardOn(6, 0) == 0 && !whiteKingMoved && !whiteRookKingSMoved) ||
-                (!getTeam(getBoardOn(oldX, oldY)) && getBoardOn(5, 7) == 0 &&
-                        getBoardOn(6, 7) == 0 && !blackKingMoved && !blackRookKingSMoved);
+        boolean castleKingside = (getTeam(getBoardOn(oldX, oldY, inputBoard)) && getBoardOn(5, 0, inputBoard) == 0 &&
+                getBoardOn(6, 0, inputBoard) == 0 && !whiteKingMoved && !whiteRookKingSMoved) ||
+                (!getTeam(getBoardOn(oldX, oldY, inputBoard)) && getBoardOn(5, 7, inputBoard) == 0 &&
+                        getBoardOn(6, 7, inputBoard) == 0 && !blackKingMoved && !blackRookKingSMoved);
         // castleKingside = castleKingside && x4 x5 x6 mit y0 oder y7 not checked TODO
-        boolean castleQueenside = (getTeam(getBoardOn(oldX, oldY)) && getBoardOn(3, 0) == 0 &&
-                getBoardOn(2, 0) == 0 && !whiteKingMoved && !whiteRookQueenSMoved) ||
-                (!getTeam(getBoardOn(oldX, oldY)) && getBoardOn(3, 7) == 0 &&
-                        getBoardOn(2, 7) == 0 && !blackKingMoved && !blackRookQueenSMoved);
+        boolean castleQueenside = (getTeam(getBoardOn(oldX, oldY, inputBoard)) && getBoardOn(3, 0, inputBoard) == 0 &&
+                getBoardOn(2, 0, inputBoard) == 0 && !whiteKingMoved && !whiteRookQueenSMoved) ||
+                (!getTeam(getBoardOn(oldX, oldY, inputBoard)) && getBoardOn(3, 7, inputBoard) == 0 &&
+                        getBoardOn(2, 7, inputBoard) == 0 && !blackKingMoved && !blackRookQueenSMoved);
         // castleQueenside = castleQueenside && x4 x3 x2 mit y0 oder y7 not checked TODO
         return legalMove || castleKingside || castleQueenside;
     }
 
-    private boolean legalMoveQueen(int oldX, int oldY, int x, int y) {
+    private boolean legalMoveQueen(int oldX, int oldY, int x, int y, int[][] inputBoard) {
         // legal position
         boolean legalPosition = (Math.abs(x - oldX) == 0 || Math.abs(y - oldY) == 0)
                 || Math.abs(x - oldX) == Math.abs(y - oldY);
@@ -136,43 +148,43 @@ public class ChessEngine {
         // legal motion
         boolean legalMotion = false;
         if (Math.abs(x - oldX) == 0 || Math.abs(y - oldY) == 0) {
-            legalMotion = legalStraight(oldX, oldY, x, y);
+            legalMotion = legalStraight(oldX, oldY, x, y, inputBoard);
         } else if (Math.abs(x - oldX) == Math.abs(y - oldY)) {
-            legalMotion = legalDiagonal(oldX, oldY, x, y);
+            legalMotion = legalDiagonal(oldX, oldY, x, y, inputBoard);
         }
         return legalMotion;
     }
 
-    private boolean legalMoveBishop(int oldX, int oldY, int x, int y) {
+    private boolean legalMoveBishop(int oldX, int oldY, int x, int y, int[][] inputBoard) {
         // legal position
         boolean legalPosition = Math.abs(x - oldX) == Math.abs(y - oldY);
         if (!legalPosition) {
             return false;
         }
         // legal motion
-        return legalDiagonal(oldX, oldY, x, y);
+        return legalDiagonal(oldX, oldY, x, y, inputBoard);
     }
 
-    private boolean legalMoveKnight(int oldX, int oldY, int x, int y) {
+    private boolean legalMoveKnight(int oldX, int oldY, int x, int y, int[][] inputBoard) {
         return Math.abs(x - oldX) * Math.abs(y - oldY) == 2;
     }
 
-    private boolean legalMoveRook(int oldX, int oldY, int x, int y) {
+    private boolean legalMoveRook(int oldX, int oldY, int x, int y, int[][] inputBoard) {
         // legal position
         boolean legalPosition = (Math.abs(x - oldX) == 0 || Math.abs(y - oldY) == 0);
         if (!legalPosition) {
             return false;
         }
         // legal motion
-        return legalStraight(oldX, oldY, x, y);
+        return legalStraight(oldX, oldY, x, y, inputBoard);
     }
 
-    private boolean legalMovePawn(int oldX, int oldY, int x, int y) {
-        return true;//temp
+    private boolean legalMovePawn(int oldX, int oldY, int x, int y, int[][] inputBoard) {
+        return false;//temp
     }//TODO
 
     // legal motion helper Methods
-    private boolean legalStraight(int oldX, int oldY, int x, int y) {
+    private boolean legalStraight(int oldX, int oldY, int x, int y, int[][] inputBoard) {
         boolean legalMotion = true;
         int xmovement = x - oldX;
         int ymovement = y - oldY;
@@ -186,11 +198,11 @@ public class ChessEngine {
         }
         for (int i = tile + incr; incr > 0 ? i < newTile : i > newTile; i += incr) {
             if (directionX) {
-                if (getBoardOn(i, oldY) != 0) {
+                if (getBoardOn(i, oldY, inputBoard) != 0) {
                     legalMotion = false;
                 }
             } else {
-                if (getBoardOn(oldX, i) != 0) {
+                if (getBoardOn(oldX, i, inputBoard) != 0) {
                     legalMotion = false;
                 }
             }
@@ -198,7 +210,7 @@ public class ChessEngine {
         return legalMotion;
     }
 
-    private boolean legalDiagonal(int oldX, int oldY, int x, int y) {
+    private boolean legalDiagonal(int oldX, int oldY, int x, int y, int[][] inputBoard) {
         boolean legalMotion = true;
         int xmovement = x - oldX;
         int ymovement = y - oldY;
@@ -218,55 +230,43 @@ public class ChessEngine {
             incrY = -1;
         }
         for (int i = 1; i < Math.abs(xmovement); i++) {
-            if (getBoardOn(oldX + incrX * i, oldY + incrY * i) != 0) {
+            if (getBoardOn(oldX + incrX * i, oldY + incrY * i, inputBoard) != 0) {
                 legalMotion = false;
             }
         }
         return legalMotion;
     }
 
+    public boolean legalMoveSelector(int oldX, int oldY, int x, int y, int piece, int[][] inputBoard) {
+
+        switch (piece) {
+            case Piece.KING:
+                return legalMoveKing(oldX, oldY, x, y, inputBoard);
+            case Piece.QUEEN:
+                return legalMoveQueen(oldX, oldY, x, y, inputBoard);
+            case Piece.BISHOP:
+                return legalMoveBishop(oldX, oldY, x, y, inputBoard);
+            case Piece.KNIGHT:
+                return legalMoveKnight(oldX, oldY, x, y, inputBoard);
+            case Piece.ROOK:
+                return legalMoveRook(oldX, oldY, x, y, inputBoard);
+            case Piece.PAWN:
+                return legalMovePawn(oldX, oldY, x, y, inputBoard);
+            default:
+                System.out.println("ERROR: original Piece not found");
+                return false;
+        }
+    }
     // private Helper Methods
+
     private int setBit(int number, int idx, int value) {
         if (value != 0 && value != 1) {
             return -1;
         }
         return number | (value << idx);
     }
-
     private int getBit(int number, int idx) {
         return (number >> idx) & 1;
-    }
-
-    private boolean legalMoveSelector(int oldX, int oldY, int x, int y, int piece) {
-        switch (piece) {
-            case Piece.KING:
-                System.out.println("King");
-                return legalMoveKing(oldX, oldY, x, y);
-            break;
-            case Piece.QUEEN:
-                System.out.println("queen");
-                return legalMoveQueen(oldX, oldY, x, y);
-            break;
-            case Piece.BISHOP:
-                System.out.println("bishop");
-                return legalMoveBishop(oldX, oldY, x, y);
-            break;
-            case Piece.KNIGHT:
-                System.out.println("knight");
-                return legalMoveKnight(oldX, oldY, x, y);
-            break;
-            case Piece.ROOK:
-                System.out.println("rook");
-                return legalMoveRook(oldX, oldY, x, y);
-            break;
-            case Piece.PAWN:
-                System.out.println("pawn");
-                return legalMovePawn(oldX, oldY, x, y);
-            break;
-            default:
-                System.out.println("ERROR: original Piece not found");
-                return false;
-        }
     }
 
     // public Methods -------------------
@@ -275,20 +275,37 @@ public class ChessEngine {
     }
 
     public int getBoardOn(int x, int y) {
-        return board[x][y];
+        return getBoardOn(x, y, this.board);
     }
-
+    private int getBoardOn(int x, int y, int[][] inputBoard){
+        return inputBoard[x][y];
+    }
+    public boolean isChecked() {
+        return isChecked(getTurn(), this.board);
+    }
     public boolean isChecked(boolean team) {
         return isChecked(team, this.board);
     }
 
     public boolean isChecked(boolean team, int[][] inputBoard) {
         // TODO
-
+        for (int y = 0; y < inputBoard.length; y++) {
+            for (int x = 0; x < inputBoard[0].length; x++) {
+                if(inputBoard[x][y] != 0 && getTeam(inputBoard[x][y]) != team){
+                    int[] kingCords = getKing(team, inputBoard);
+                    if(legalMoveSelector(x, y, kingCords[0], kingCords[1], getPiece(inputBoard[x][y]), inputBoard)){
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
     public boolean isMate() {
+        return isMate(getTurn()); // TODO
+    }
+    public boolean isMate(boolean team) {
         return false; // TODO
     }
 
@@ -313,7 +330,7 @@ public class ChessEngine {
         }
         // check if legal piece move
         int zwOldId = getBoardOn(oldX, oldY);
-        boolean legalMovePiece = legalMoveSelector(oldX, oldY, x, y, getPiece(zwOldId));
+        boolean legalMovePiece = legalMoveSelector(oldX, oldY, x, y, getPiece(zwOldId), this.board);
         if (!legalMovePiece) {
             return false;
         }
@@ -327,7 +344,7 @@ public class ChessEngine {
     public boolean makeMove(int oldX, int oldY, int x, int y) {
         if (canMove(oldX, oldY, x, y)) {
             int zwId = getBoardOn(oldX, oldY);
-            zwId = setWasMoved(zwId);
+//            zwId = setWasMoved(zwId);
             setBoardOn(x, y, zwId);
             clearTile(oldX, oldY);
             turn++;
