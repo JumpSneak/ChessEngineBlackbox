@@ -249,7 +249,7 @@ public class ChessEngine {
         // check if legal piece move
         boolean legalMovePiece = false;
         int zwOldId = getBoardOn(oldX, oldY);
-        switch (Piece.values()[getPiece(zwOldId)]){
+        switch (Piece.values()[getPiece(zwOldId)]){ //TODO change this switch
             case KING:
                 System.out.println("King");
                 legalMovePiece = legalMoveKing(oldX, oldY, x, y);
