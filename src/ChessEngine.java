@@ -34,7 +34,7 @@ public class ChessEngine {
         // gets piece type of id
         return id & 0x7;
     }
-    private boolean getTeam(int id) {
+    public boolean getTeam(int id) {
         // gets team of id
         return getBit(id, 3) == 1;
     }
