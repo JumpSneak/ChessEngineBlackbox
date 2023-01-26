@@ -16,7 +16,6 @@ public class Main {
             int tox = scanner.nextInt();
             int toy = scanner.nextInt();
             System.out.println(chessEngine.makeMove(fromx, fromy, tox, toy));
-            System.out.println(chessEngine.isChecked()? "CHECK!!":"");
         }
     }
 }
