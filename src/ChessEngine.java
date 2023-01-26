@@ -194,7 +194,18 @@ public class ChessEngine {
         if(!legalPosition){
             return false;
         }
-        return false;//temp
+        boolean legalMotion;
+        boolean isWhite = getTeam(getBoardOn(oldX, oldY));
+        boolean untouched = oldY == 1 && isWhite || oldY == 6 && !isWhite;
+        move = y - oldY;
+        if (!getTeam(getBoardOn(oldX, oldY))) {
+            move *= -1;
+        }
+        if (untouched) {
+            untouched = false;
+            return move == 2 && getBoardOn(oldX, isWhite ? oldY + 1 : oldY - 1) == 0 || move == 1;
+        }
+        return move == 1;
     }//TODO
 
     // legal motion helper Methods
