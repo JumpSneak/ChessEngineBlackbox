@@ -40,7 +40,7 @@ public class ChessEngine {
         initBoard();
     }
 
-    // private Tool Methods
+    // public Tool Methods
     public int getPiece(int id) {
         // gets piece type of id
         return id & 0x7;
@@ -51,11 +51,12 @@ public class ChessEngine {
         return getBit(id, 3) == 1;
     }
 
-    private int[] getKing(boolean team) {
+    public int[] getKing(boolean team) {
         return getKing(team, this.board);
     }
 
-    public int[] getKing(boolean team, int[][] inputBoard) {
+    // private Tool Methods
+    private int[] getKing(boolean team, int[][] inputBoard) {
         for (int y = 0; y < inputBoard.length; y++) {
             for (int x = 0; x < inputBoard[0].length; x++) {
                 if (getPiece(inputBoard[x][y]) == Piece.KING && getTeam(inputBoard[x][y]) == team) {
